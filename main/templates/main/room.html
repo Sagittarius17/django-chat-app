@@ -1,0 +1,63 @@
+<!-- video_chat/room.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Chat Room</title>
+    <style>
+        #video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        #video-container video {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border: 5px solid;
+            margin: 5px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplewebrtc/3.0.0/simplewebrtc.js"></script>
+</head>
+<body>
+    <div>
+        <label for="room-input">Room Name:</label>
+        <input type="text" id="room-input">
+        <button id="join-button">Join Room</button>
+    </div>
+
+    <div id="video-container">
+        <video id="local-video" autoplay muted></video>
+        <video id="remote-video" autoplay></video>
+    </div>
+
+    <script>
+        const joinButton = document.getElementById('join-button');
+        const roomInput = document.getElementById('room-input');
+        const localVideo = document.getElementById('local-video');
+
+        joinButton.addEventListener('click', () => {
+            const roomName = roomInput.value.trim();
+            if (roomName) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then((stream) => {
+                        localVideo.srcObject = stream;
+                        const webrtc = new SimpleWebRTC({
+                            localVideoEl: 'local-video',
+                            remoteVideosEl: 'remote-video',
+                            autoRequestMedia: false,
+                        });
+                        webrtc.joinRoom(roomName);
+                    })
+                    .catch((error) => {
+                        console.error('Error accessing camera and microphone:', error);
+                    });
+            } else {
+                console.error('Please enter a valid room name.');
+            }
+        });
+    </script>
+</body>
+</html>
