@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Video Chat Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-12">
+        <h1 class="text-4xl text-center mb-8">Join a Video Chat Room</h1>
+        <div class="max-w-xs mx-auto">
+            <label class="block mb-2" for="room-input">Enter Room Name:</label>
+            <div class="flex items-center">
+                <input type="text" id="room-input" class="flex-grow px-4 py-2 rounded-l-md border-2 border-r-0 border-gray-300 focus:outline-none focus:border-blue-500">
+                <button id="join-button" class="px-6 py-2 bg-blue-500 text-white rounded-r-md">Join Room</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const joinButton = document.getElementById('join-button');
+        const roomInput = document.getElementById('room-input');
+
+        joinButton.addEventListener('click', () => {
+            const roomName = roomInput.value.trim();
+            if (roomName) {
+                window.location.href = '/' + roomName;
+            } else {
+                console.error('Please enter a valid room name.');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -23,14 +23,16 @@
 </head>
 <body>
     <div>
-        <label for="room-input">Room Name:</label>
-        <input type="text" id="room-input">
-        <button id="join-button">Join Room</button>
+        <form method="POST" action="{% url 'videoChatRoom' %}">
+            {% csrf_token %}
+            <label for="room-input">Room Name:</label>
+            <input type="text" id="room-input" name="room_name">
+            <button type="submit">Create Room</button>
+        </form>
     </div>
 
     <div id="video-container">
-        <video id="local-video" autoplay muted></video>
-        <video id="remote-video" autoplay></video>
+        <!-- Video container elements -->
     </div>
 
     <script>
