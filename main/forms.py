@@ -1,12 +1,14 @@
 from django import forms
-from .models import Video, Audio
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
-class VideoForm(forms.ModelForm):
-    class Meta:
-        model = Video
-        fields = ['title', 'file']
+class SignupForm(UserCreationForm):
+    email = forms.EmailField()
 
-class AudioForm(forms.ModelForm):
     class Meta:
-        model = Audio
-        fields = ['title', 'file']
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)

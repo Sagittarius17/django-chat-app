@@ -1,20 +1,37 @@
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from .forms import SignupForm, LoginForm
 
-# Create your views here.
-# videoshare/app/views.py
+def main(request):
+    return render('', 'main/index.html')
 
-def main_layout(request):
-    return render(request, 'main/index.html')
-
-from .models import Room
-
-def video_chat_room(request):
+def signup(request):
     if request.method == 'POST':
-        room_name = request.POST.get('room_name')
-        if room_name:
-            room = Room.objects.create(name=room_name)
-            # You can perform additional operations with the room object if needed
-            return render(request, 'main/room.html', {'room': room})
-    return render(request, 'main/room.html')
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            # Create a new user
+            form.save()
+            return redirect('login')
+    else:
+        form = SignupForm()
+    return render(request, 'main/signup.html', {'form': form})
 
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                form.add_error(None, 'Invalid credentials')
+    else:
+        form = LoginForm()
+    return render(request, 'main/signin.html', {'form': form})
 
+def user_logout(request):
+    logout(request)
+    return redirect('home')
