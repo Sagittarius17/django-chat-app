@@ -10,17 +10,20 @@
     <!-- Navbar -->
     <nav>
         <!-- Add your navbar content here -->
+        {% include 'main/navbar.html' %}
     </nav>
 
     <!-- Main content -->
     <div class="container">
         {% block content %}
+        {% include 'main/index.html' %}
         {% endblock %}
     </div>
 
     <!-- Footer -->
     <footer>
         <!-- Add your footer content here -->
+        {% include 'main/footer.html' %}
     </footer>
 
     <!-- Add your JavaScript and other scripts here -->

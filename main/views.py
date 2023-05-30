@@ -2,8 +2,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from .forms import SignupForm, LoginForm
 
-def main(request):
-    return render('', 'main/index.html')
+def main_layout(request):
+    return render(request, 'main/base.html')
 
 def signup(request):
     if request.method == 'POST':
