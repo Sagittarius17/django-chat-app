@@ -1,11 +1,13 @@
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import *
 
-def index_view(request):
-    return render(request, 'base.html')
+def welcome(request):
+    return render(request, 'app_chat/welcome.html')
 
+@csrf_exempt
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -20,3 +22,4 @@ def signup(request):
         form = SignUpForm()
     
     return render(request, 'app_chat/signup.html', {'form': form})
+

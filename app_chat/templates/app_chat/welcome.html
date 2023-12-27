@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}
+    {% if request.user.is_authenticated %}
+        Welcome | {{ user.username }}
+    {% else %}
+        Welcome
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+{% if request.user.is_authenticated %}
+    <div class="flex flex-col w-full">
+        <div class="flex justify-center mb-5">
+            <h1 class="text-3xl lg:text-6xl text-white">Welcome {{ user.username }}</h1>
+        </div>
+    </div>
+{% else %}
+    <div class="flex flex-col items-center text-center gap-4 w-96 bg-white rounded shadow p-4 text-gray-70">
+        <h1>Hey visitor welcome to lamda!</h1>
+        
+        <h1>To further know about lamda please <a href="/signup/" class="underline hover:text-xl text-blue-600 hover:text-blue-900">Sign up</a> or 
+            <a href="/login/" class="underline hover:text-xl text-blue-600 hover:text-blue-900">Log in</a> if you are already a lamda user!
+        </h1>
+    </div>
+{% endif %}
+{% endblock %}
