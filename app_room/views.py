@@ -6,8 +6,9 @@ from .models import *
 @login_required
 def rooms(request):
     rooms = Room.objects.all()
+    context = {'rooms': rooms}
     
-    return render(request, 'app_room/rooms.html', {'rooms': rooms})
+    return render(request, 'app_room/rooms.html', context)
 
 @login_required
 # def room(request, slug):
@@ -20,8 +21,9 @@ def room(request, slug):
     try:
         room = get_object_or_404(Room, slug=slug)
         messages = Message.objects.filter(room=room)[0:25]
+        context = {'room': room, 'messages': messages}
         
-        return render(request, 'app_room/room.html', {'room': room, 'messages': messages})
+        return render(request, 'app_room/room.html', context)
     
     except Room.DoesNotExist:
         msg.error(request, 'Room not found.')
@@ -31,4 +33,4 @@ def room(request, slug):
         # Log the exception for debugging purposes
         print(f"An error occurred: {e}")
         msg.error(request, 'An error occurred.')
-        return render(request, 'app_room/room_error.html', status=500)
+        return render(request, 'app_room/room_not_found.html', status=500)
