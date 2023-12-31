@@ -14,7 +14,7 @@ class Message(models.Model):
     room = models.ForeignKey(Room, related_name='messages', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
     content = models.TextField()
-    date_added = models.DateTimeField(default=timezone.now, editable=False)
+    timestamp = models.DateTimeField(default=timezone.now, editable=False)
     
     class Meta:
-        ordering = ['date_added',]
+        ordering = ['timestamp',]
