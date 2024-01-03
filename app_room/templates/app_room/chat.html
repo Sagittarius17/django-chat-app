@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %} {{ room.name }} {% endblock %}
+{% block title %} CHAT {% endblock %}
 
 
 {% block content %}
@@ -39,7 +39,6 @@
 {% block scripts %}
 {{ room.slug|json_script:"json-roomname" }}
 {{ request.user.username|json_script:"json-username" }}
-{{ request.messages.timestamp|json_script:"json-timestamp" }}
 
 <script>
     const messageInput = document.getElementById('chat_message_input');
@@ -62,8 +61,6 @@
 
     const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
     const userName = JSON.parse(document.getElementById('json-username').textContent);
-    const timeStamp = JSON.parse(document.getElementById('json-timestamp').textContent);
-
     const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/' + roomName + '/');
     console.log(chatSocket);
 
@@ -102,6 +99,11 @@
 
         const messageInputDom = document.querySelector('#chat_message_input');
         const message = messageInputDom.value;
+        const recipientUsername = 'RECIPIENT_USERNAME';  // Replace with the actual recipient's username
+
+        // Get the current date and time and format it as a string
+        const currentDate = new Date();
+        const timestamp = currentDate.toISOString();
 
         // Apply alignment class for sent messages
         let alignmentClass = 'text-right';
@@ -110,7 +112,9 @@
             'message': message,
             'username': userName,
             'room': roomName,
-            'timestamp': timeStamp,
+            'alignmentClass': alignmentClass,
+            'timestamp': timestamp,
+            'recipient_username': recipientUsername,
         }));
 
         messageInputDom.value = '';
