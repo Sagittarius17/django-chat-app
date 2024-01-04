@@ -4,10 +4,10 @@
 
 {% block content %}
     <div class="flex flex-col w-full h-screen justify-center items-center">        
-        <div class="lg:w-2/4 w-full mx-4 lg:mx-auto p-2 bg-white lg:rounded-md overflow-auto lg:mt-6">
+        <div class="lg:w-2/4 w-full mx-4 lg:mx-auto p-2 bg-white lg:rounded-md lg:mt-6">
             <div class="chat-messages space-y-1" id="chat_messages">
                 {% for message in messages %}
-                    <div class="p-2 bg-gray-200 rounded-md max-w-content overflow-auto
+                    <div class="p-2 bg-gray-200 rounded-md max-w-content
                             {% if message.user.username == request.user.username %}
                                 bg-green-200 text-right
                             {% else %}
@@ -39,30 +39,10 @@
 {% block scripts %}
 {{ room.slug|json_script:"json-roomname" }}
 {{ request.user.username|json_script:"json-username" }}
-{{ request.messages.timestamp|json_script:"json-timestamp" }}
 
 <script>
-    const messageInput = document.getElementById('chat_message_input');
-    const submitButton = document.getElementById('chat_message_submit');
-
-    // Disable the button initially
-    submitButton.disabled = true;
-
-    // Add an event listener to the input field
-    messageInput.addEventListener('input', function() {
-        // Enable the button only if the input field is not empty
-        submitButton.disabled = !messageInput.value.trim();
-    });
-
-    // Add an event listener to the button (optional)
-    submitButton.addEventListener('click', function() {
-        // Perform actions when the button is clicked
-        // Note: The button is already disabled if the input is empty
-    });
-
     const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
     const userName = JSON.parse(document.getElementById('json-username').textContent);
-    const timeStamp = JSON.parse(document.getElementById('json-timestamp').textContent);
 
     const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/' + roomName + '/');
     console.log(chatSocket);
@@ -92,10 +72,6 @@
     }
     
     //
-    
-    // Get the current date and time
-    const currentDate = new Date();
-    const timestamp = currentDate.toISOString();
 
     document.querySelector('#chat_message_submit').onclick = function(e) {
         e.preventDefault();
@@ -103,30 +79,31 @@
         const messageInputDom = document.querySelector('#chat_message_input');
         const message = messageInputDom.value;
 
-        // Apply alignment class for sent messages
-        let alignmentClass = 'text-right';
+        // Check if the message is not empty before sending
+        if (message.trim() !== '') {
+            // Apply alignment class for sent messages
+            let alignmentClass = 'text-right';
 
-        chatSocket.send(JSON.stringify({
-            'message': message,
-            'username': userName,
-            'room': roomName,
-            'timestamp': timeStamp,
-        }));
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'username': userName,
+                'room': roomName,
+            }));
 
-        messageInputDom.value = '';
+            messageInputDom.value = '';
+        } else {
+            alert('Message cannot be empty!');
+        }
 
         return false;
     }
 
-    /**
-    * A function for finding the messages element, and scroll to the bottom of it.
-    */
+    // A function for finding the messages element, and scroll to the bottom of it.
     function scrollToBottom() {
         let objDiv = document.getElementById("chat_messages");
         objDiv.scrollTop = objDiv.scrollHeight;
     }    
 
-    // Add this below the function to trigger the scroll on load.
     scrollToBottom();
 </script>
 {% endblock %}

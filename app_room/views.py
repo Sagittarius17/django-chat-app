@@ -20,7 +20,13 @@ def rooms(request):
 def room(request, slug):
     try:
         room = get_object_or_404(Room, slug=slug)
-        messages = Message.objects.filter(room=room)[0:25]
+
+        # Get the last 25 messages ordered by timestamp in descending order
+        messages = Message.objects.filter(room=room).order_by('-timestamp')[:25]
+
+        # Reverse the order of messages so that the oldest messages come first
+        messages = messages[::-1]
+
         context = {'room': room, 'messages': messages}
         
         return render(request, 'app_room/room.html', context)

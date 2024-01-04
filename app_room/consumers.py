@@ -1,10 +1,7 @@
 import json
-
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
-
 from django.contrib.auth.models import User
-
 from .models import *
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -27,11 +24,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
     async def receive(self, text_data=None, bytes_data=None):
         data = json.loads(text_data)
-        print(data)
+        print(f"data {data}")
         message = data['message']
         username = data['username']
         room = data['room']
-        timestamp = data['timestamp']
         
         await self.save_message(username, room, message)
         
@@ -42,7 +38,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': message,
                 'username': username,
                 'room': room,
-                'timestamp': timestamp
             }
         )
         
@@ -50,13 +45,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         username = event['username']
         room = event['room']
-        timestamp = event['timestamp']
         
         await self.send(text_data=json.dumps({
             'message': message,
             'username': username,
             'room': room,
-            'timestamp': timestamp
         }))
         
     @sync_to_async
