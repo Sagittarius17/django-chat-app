@@ -7,7 +7,7 @@
         <div class="lg:w-2/4 w-full mx-4 lg:mx-auto p-2 bg-white lg:rounded-md lg:mt-6">
             <div class="chat-messages space-y-1" id="chat_messages">
                 {% for message in messages %}
-                    <div class="p-2 bg-gray-200 rounded-md max-w-content
+                    <div class="p-2 bg-gray-200 rounded-md max-w-content break-all
                             {% if message.user.username == request.user.username %}
                                 bg-green-200 text-right
                             {% else %}
@@ -18,7 +18,7 @@
                             <p> {{ message.content }} </p>
                         </div>
                         <div>
-                            <p> {{ message.timestamp }} </p>
+                            <p class="text-xs text-gray-500"> {{ message.timestamp|date:'h:i A' }} </p>
                         </div>
                     </div>
                 {% endfor %}
@@ -47,24 +47,66 @@
     const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/' + roomName + '/');
     console.log(chatSocket);
 
-    chatSocket.onmessage = function(e) {
-        console.log('onmessage')
-        let data = JSON.parse(e.data);
+    // Variable to keep track of the last displayed date
+    let lastDisplayedDate = null;
 
-        if (data.message) {
-            let cssClass = data.username === userName ? 'bg-green-200' : 'bg-gray-200';
-            let alignmentClass = data.alignmentClass || (data.username === userName ? 'text-right' : 'text-left');
-            
-            let html = '<div class="p-2 bg-gray-200 ' + cssClass + ' ' + alignmentClass + ' rounded-md">';
-                html += '<p class="font-semibold">' + data.username + '</p>';
-                html += '<p>' + data.message + '</p></div>';
-            
-            document.querySelector('#chat_messages').innerHTML += html;
-        } else {
-            alert('Message was empty!');
+    chatSocket.onmessage = function (e) {
+    let data = JSON.parse(e.data);
+
+    if (data.message) {
+        let cssClass = data.username === userName ? 'bg-green-200' : 'bg-gray-200';
+        let alignmentClass = data.alignmentClass || (data.username === userName ? 'text-right' : 'text-left');
+
+        let messageDate = new Date(data.timestamp);
+        let formattedMessageDate = messageDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Check if the current message has the same date as the last displayed date
+        if (formattedMessageDate !== lastDisplayedDate) {
+            // If not, display the date header
+            displayDateHeader(formattedMessageDate);
+            lastDisplayedDate = formattedMessageDate;
         }
+
+        let html = '<div class="p-2 bg-gray-200 ' + cssClass + ' ' + alignmentClass + ' rounded-md">';
+        html += '<p class="font-semibold">' + data.username + '</p>';
+        html += '<p>' + data.message + '</p>';
+        html += '<div class="text-xs text-gray-500">' + formatTimestamp(messageDate) + '</div>';
+        html += '</div>';
+
+        document.querySelector('#chat_messages').innerHTML += html;
+    } else {
+        alert('Message was empty!');
+    }
+
         // Scroll down to the bottom of the page on new content
-        scrollToBottom()
+        scrollToBottom();
+    }
+
+    // Function to display the date header
+    function displayDateHeader(date) {
+        let header = document.createElement('div');
+        header.className = 'text-center text-gray-500 my-2';
+        header.textContent = date;
+        document.querySelector('#chat_messages').appendChild(header);
+    }
+
+    // Function to format the timestamp (you can customize the format as needed)
+    function formatTimestamp(timestamp) {
+        const messageDate = new Date(timestamp);
+        const currentDate = new Date();
+
+        if (
+            messageDate.getFullYear() === currentDate.getFullYear() &&
+            messageDate.getMonth() === currentDate.getMonth() &&
+            messageDate.getDate() === currentDate.getDate()
+        ) {
+            // If the message was sent today, display the time only
+            return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else {
+            // If the message was sent on a previous day, display the date
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return messageDate.toLocaleDateString(undefined, options);
+        }
     }
 
     chatSocket.onclose = function(e) {
@@ -105,5 +147,6 @@
     }    
 
     scrollToBottom();
+
 </script>
 {% endblock %}
