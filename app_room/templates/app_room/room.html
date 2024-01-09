@@ -51,43 +51,40 @@
     let lastDisplayedDate = null;
 
     chatSocket.onmessage = function (e) {
-    let data = JSON.parse(e.data);
-
-    if (data.message) {
-        let cssClass = data.username === userName ? 'bg-green-200' : 'bg-gray-200';
-        let alignmentClass = data.alignmentClass || (data.username === userName ? 'text-right' : 'text-left');
-
-        let messageDate = new Date(data.timestamp);
-        let formattedMessageDate = messageDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-        // Check if the current message has the same date as the last displayed date
-        if (formattedMessageDate !== lastDisplayedDate) {
-            // If not, display the date header
-            displayDateHeader(formattedMessageDate);
-            lastDisplayedDate = formattedMessageDate;
+        let data = JSON.parse(e.data);
+    
+        if (data.message) {
+            let cssClass = data.username === userName ? 'bg-green-200' : 'bg-gray-200';
+            let alignmentClass = data.alignmentClass || (data.username === userName ? 'text-right' : 'text-left');
+    
+            let messageDate = new Date(data.timestamp);
+            let formattedMessageDate = messageDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    
+            // Check if the current message's date is different from the last displayed date
+            if (formattedMessageDate !== lastDisplayedDate) {
+                // Display the date header
+                let dateHeaderHtml = '<div class="text-center text-gray-500 my-2">';
+                dateHeaderHtml += formattedMessageDate;
+                dateHeaderHtml += '</div>';
+                document.querySelector('#chat_messages').innerHTML += dateHeaderHtml;
+    
+                // Update the lastDisplayedDate variable
+                lastDisplayedDate = formattedMessageDate;
+            }
+    
+            let html = '<div class="p-2 bg-gray-200 ' + cssClass + ' ' + alignmentClass + ' rounded-md">';
+            html += '<p class="font-semibold">' + data.username + '</p>';
+            html += '<p>' + data.message + '</p>';
+            html += '<div class="text-xs text-gray-500">' + formatTimestamp(messageDate) + '</div>';
+            html += '</div>';
+    
+            document.querySelector('#chat_messages').innerHTML += html;
+        } else {
+            alert('Message was empty!');
         }
-
-        let html = '<div class="p-2 bg-gray-200 ' + cssClass + ' ' + alignmentClass + ' rounded-md">';
-        html += '<p class="font-semibold">' + data.username + '</p>';
-        html += '<p>' + data.message + '</p>';
-        html += '<div class="text-xs text-gray-500">' + formatTimestamp(messageDate) + '</div>';
-        html += '</div>';
-
-        document.querySelector('#chat_messages').innerHTML += html;
-    } else {
-        alert('Message was empty!');
-    }
-
+    
         // Scroll down to the bottom of the page on new content
         scrollToBottom();
-    }
-
-    // Function to display the date header
-    function displayDateHeader(date) {
-        let header = document.createElement('div');
-        header.className = 'text-center text-gray-500 my-2';
-        header.textContent = date;
-        document.querySelector('#chat_messages').appendChild(header);
     }
 
     // Function to format the timestamp (you can customize the format as needed)
@@ -123,9 +120,6 @@
 
         // Check if the message is not empty before sending
         if (message.trim() !== '') {
-            // Apply alignment class for sent messages
-            let alignmentClass = 'text-right';
-
             chatSocket.send(JSON.stringify({
                 'message': message,
                 'username': userName,
@@ -145,7 +139,6 @@
         let objDiv = document.getElementById("chat_messages");
         objDiv.scrollTop = objDiv.scrollHeight;
     }    
-
     scrollToBottom();
 
 </script>

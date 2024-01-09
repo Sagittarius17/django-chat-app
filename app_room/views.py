@@ -11,12 +11,6 @@ def rooms(request):
     return render(request, 'app_room/rooms.html', context)
 
 @login_required
-# def room(request, slug):
-#     room = Room.objects.get(slug=slug)
-#     messages = Message.objects.filter(room=room)[0:25]
-    
-#     return render(request, 'app_room/room.html', {'room': room}, {'messages': messages})
-
 def room(request, slug):
     try:
         room = get_object_or_404(Room, slug=slug)
