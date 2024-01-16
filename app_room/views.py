@@ -10,18 +10,28 @@ def rooms(request):
     
     return render(request, 'app_room/rooms.html', context)
 
+
+from itertools import groupby
+from operator import attrgetter
+
 @login_required
 def room(request, slug):
     try:
         room = get_object_or_404(Room, slug=slug)
 
-        # Get the last 25 messages ordered by timestamp in descending order
-        messages = Message.objects.filter(room=room).order_by('-timestamp')[:25]
+        # Get all messages for the room ordered by timestamp
+        messages = Message.objects.filter(room=room).order_by('timestamp')
 
-        # Reverse the order of messages so that the oldest messages come first
-        messages = messages[::-1]
+        # Group messages by date
+        grouped_messages = []
+        for date, group in groupby(messages, key=attrgetter('timestamp.date')):
+            date_messages = list(group)
+            grouped_messages.append({
+                'date': date,
+                'messages': date_messages,
+            })
 
-        context = {'room': room, 'messages': messages}
+        context = {'room': room, 'grouped_messages': grouped_messages}
         
         return render(request, 'app_room/room.html', context)
     

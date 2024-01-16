@@ -4,25 +4,34 @@
 
 {% block content %}
     <div class="flex flex-col w-full h-screen justify-center items-center">        
-        <div class="lg:w-2/4 w-full mx-4 lg:mx-auto p-2 bg-white lg:rounded-md lg:mt-6">
-            <div class="chat-messages space-y-1" id="chat_messages">
-                {% for message in messages %}
-                    <div class="p-2 bg-gray-200 rounded-md max-w-content break-all
-                            {% if message.user.username == request.user.username %}
-                                bg-green-200 text-right
-                            {% else %}
-                                bg-gray-200 text-left
-                            {% endif %}">
-                        <div>
-                            <p class="font-semibold"> {{ message.user.username }} </p>
-                            <p> {{ message.content }} </p>
+        <div class="lg:w-2/4 w-full mx-4 lg:mx-auto p-2 bg-white lg:rounded-md lg:mt-5">
+            <div class="chat-messages h-auto space-y-1" id="chat_messages">
+                {% for group in grouped_messages %}
+                    {% ifchanged group.date %}
+                        <div class="date-group">
+                            <p class="text-sm text-center text-gray-500"">{{ group.date|date:'l, F j, Y' }}</p>
                         </div>
-                        <div>
-                            <p class="text-xs text-gray-500"> {{ message.timestamp|date:'h:i A' }} </p>
+                    {% endifchanged %}
+            
+                    {% for message in group.messages %}
+                        <div class="p-2 bg-gray-200 rounded-md max-w-content break-all
+                                {% if message.user.username == request.user.username %}
+                                    bg-green-200 text-right
+                                {% else %}
+                                    bg-gray-200 text-left
+                                {% endif %}">
+                            <div>
+                                <p class="font-semibold"> {{ message.user.username }} </p>
+                                <p> {{ message.content }} </p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500"> {{ message.formatted_timestamp }} </p>
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 {% endfor %}
             </div>
+            
         </div>
 
         <div class="bottom-0 fixed lg:w-2/4 w-full mt-6 mx-4 lg:mx-auto p-2 bg-white lg:rounded-md">
@@ -47,72 +56,34 @@
     const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/' + roomName + '/');
     console.log(chatSocket);
 
-    // Variable to keep track of the last displayed date
-    let lastDisplayedDate = null;
-
     chatSocket.onmessage = function (e) {
         let data = JSON.parse(e.data);
-    
+
         if (data.message) {
             let cssClass = data.username === userName ? 'bg-green-200' : 'bg-gray-200';
             let alignmentClass = data.alignmentClass || (data.username === userName ? 'text-right' : 'text-left');
-    
-            let messageDate = new Date(data.timestamp);
-            let formattedMessageDate = messageDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-            // Check if the current message's date is different from the last displayed date
-            if (formattedMessageDate !== lastDisplayedDate) {
-                // Display the date header
-                let dateHeaderHtml = '<div class="text-center text-gray-500 my-2">';
-                dateHeaderHtml += formattedMessageDate;
-                dateHeaderHtml += '</div>';
-                document.querySelector('#chat_messages').innerHTML += dateHeaderHtml;
-    
-                // Update the lastDisplayedDate variable
-                lastDisplayedDate = formattedMessageDate;
-            }
-    
+
             let html = '<div class="p-2 bg-gray-200 ' + cssClass + ' ' + alignmentClass + ' rounded-md">';
             html += '<p class="font-semibold">' + data.username + '</p>';
             html += '<p>' + data.message + '</p>';
-            html += '<div class="text-xs text-gray-500">' + formatTimestamp(messageDate) + '</div>';
+            html += '<div class="text-xs text-gray-500">' + formatTimestamp(data.timestamp) + '</div>';
             html += '</div>';
-    
+
+            // Add the new message to the DOM
             document.querySelector('#chat_messages').innerHTML += html;
+
+            // Scroll down to the bottom of the page on new content
+            scrollToBottom();
         } else {
             alert('Message was empty!');
         }
-    
-        // Scroll down to the bottom of the page on new content
-        scrollToBottom();
     }
 
-    // Function to format the timestamp (you can customize the format as needed)
-    function formatTimestamp(timestamp) {
-        const messageDate = new Date(timestamp);
-        const currentDate = new Date();
-
-        if (
-            messageDate.getFullYear() === currentDate.getFullYear() &&
-            messageDate.getMonth() === currentDate.getMonth() &&
-            messageDate.getDate() === currentDate.getDate()
-        ) {
-            // If the message was sent today, display the time only
-            return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } else {
-            // If the message was sent on a previous day, display the date
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return messageDate.toLocaleDateString(undefined, options);
-        }
+    chatSocket.onclose = function (e) {
+        console.log('onclose');
     }
 
-    chatSocket.onclose = function(e) {
-        console.log('onclose')
-    }
-    
-    //
-
-    document.querySelector('#chat_message_submit').onclick = function(e) {
+    document.querySelector('#chat_message_submit').onclick = function (e) {
         e.preventDefault();
 
         const messageInputDom = document.querySelector('#chat_message_input');
@@ -138,8 +109,17 @@
     function scrollToBottom() {
         let objDiv = document.getElementById("chat_messages");
         objDiv.scrollTop = objDiv.scrollHeight;
-    }    
+    }
+
+    // Function to format the timestamp
+    function formatTimestamp(timestamp) {
+        const options = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        return new Date(timestamp).toLocaleString(undefined, options);
+    }
+
+    // Scroll to the bottom on initial load
     scrollToBottom();
+
 
 </script>
 {% endblock %}

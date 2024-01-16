@@ -16,5 +16,8 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now, editable=False)
     
+    def formatted_timestamp(self):
+        return self.timestamp.astimezone(timezone.get_current_timezone()).strftime('%I:%M %p')
+    
     class Meta:
         ordering = ['timestamp',]
