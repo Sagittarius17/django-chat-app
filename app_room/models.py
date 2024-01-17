@@ -10,14 +10,14 @@ class Room(models.Model):
     def __str__(self):
         return self.name
 
+import pytz
+import datetime as dt
+status_timezone = pytz.timezone('Etc/UTC')
 class Message(models.Model):
     room = models.ForeignKey(Room, related_name='messages', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
     content = models.TextField()
-    timestamp = models.DateTimeField(default=timezone.now, editable=False)
-    
-    def formatted_timestamp(self):
-        return self.timestamp.astimezone(timezone.get_current_timezone()).strftime('%I:%M %p')
+    timestamp = models.DateTimeField(default=status_timezone.localize(dt.datetime.now()))
     
     class Meta:
         ordering = ['timestamp',]

@@ -25,7 +25,7 @@
                                 <p> {{ message.content }} </p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-500"> {{ message.formatted_timestamp }} </p>
+                                <p class="text-xs text-gray-500"> {{ message.timestamp|date:'g:i A' }} </p>
                             </div>
                         </div>
                     {% endfor %}
@@ -113,13 +113,11 @@
 
     // Function to format the timestamp
     function formatTimestamp(timestamp) {
-        const options = { hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        const options = { hour: 'numeric', minute: 'numeric',}; //  second: 'numeric'
         return new Date(timestamp).toLocaleString(undefined, options);
     }
 
     // Scroll to the bottom on initial load
     scrollToBottom();
-
-
 </script>
 {% endblock %}

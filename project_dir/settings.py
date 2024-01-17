@@ -30,8 +30,8 @@ ALLOWED_HOSTS = []
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/rooms/'
 LOGIN_URL = '/login/'
-TIME_ZONE = 'Asia/Kolkata'
-
+# TIME_ZONE = 'Asia/Kolkata'
+# USE_TZ = False
 
 # Application definition
 
