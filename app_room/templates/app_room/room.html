@@ -74,6 +74,7 @@
 
             // Scroll down to the bottom of the page on new content
             scrollToBottom();
+            updateStickyHeader();
         } else {
             alert('Message was empty!');
         }
@@ -119,5 +120,31 @@
 
     // Scroll to the bottom on initial load
     scrollToBottom();
+
+    function updateStickyHeader() {
+        const chatMessages = document.getElementById('chat_messages');
+        const dateGroups = chatMessages.querySelectorAll('.date-group');
+    
+        let stickyHeader = null;
+    
+        for (let i = dateGroups.length - 1; i >= 0; i--) {
+            const groupOffsetTop = dateGroups[i].offsetTop;
+            if (groupOffsetTop <= chatMessages.scrollTop) {
+                stickyHeader = dateGroups[i];
+                break;
+            }
+        }
+    
+        if (stickyHeader) {
+            stickyHeader.classList.add('sticky');
+        } else {
+            dateGroups.forEach(group => group.classList.remove('sticky'));
+        }
+    }
+    let scrollTimeout;
+    document.getElementById('chat_messages').addEventListener('scroll', function() {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(updateStickyHeader, 100);
+    });
 </script>
 {% endblock %}
